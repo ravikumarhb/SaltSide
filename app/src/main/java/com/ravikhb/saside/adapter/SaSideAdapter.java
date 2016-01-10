@@ -1,9 +1,7 @@
 package com.ravikhb.saside.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +9,7 @@ import android.widget.TextView;
 
 import com.ravikhb.saside.R;
 import com.ravikhb.saside.entity.SaltSideItem;
-import com.ravikhb.saside.ui.ArticleActivity;
+import com.ravikhb.saside.ui.HeadlinesFragment;
 
 import java.util.List;
 
@@ -20,12 +18,16 @@ import java.util.List;
  */
 public class SaSideAdapter extends RecyclerView.Adapter<SaSideAdapter.SaSideViewHolder> {
 
-    private Context mContext;
     private List<SaltSideItem> mSaltSideItemList;
+    private OnItemSelectedAdapterListener mFragment;
 
-    public SaSideAdapter(Context context, List<SaltSideItem> saltSideItemList) {
-        mContext = context;
+    public interface OnItemSelectedAdapterListener {
+        void onItemSelected(SaltSideItem object);
+    }
+
+    public SaSideAdapter(Context context, List<SaltSideItem> saltSideItemList, HeadlinesFragment parent) {
         mSaltSideItemList = saltSideItemList;
+        mFragment = parent;
     }
 
     @Override
@@ -38,17 +40,11 @@ public class SaSideAdapter extends RecyclerView.Adapter<SaSideAdapter.SaSideView
     public void onBindViewHolder(SaSideViewHolder holder, int position) {
         holder.mTitle.setText(mSaltSideItemList.get(position).title);
         holder.mDescription.setText(mSaltSideItemList.get(position).description);
-
-        holder.setOnSaSideClickListener(new SaSideViewHolder.OnSaSideClickListener() {
+        holder.itemView.setSelected(true);
+        holder.setOnSaSideClickListener(new SaSideViewHolder.OnSaSideClickViewHolderListener() {
             @Override
-            public void OnSaSideClick(View view, int position) {
-                Log.i("asdfasd", "position + " + position);
-                Intent startIntent = new Intent(mContext, ArticleActivity.class);
-                startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startIntent.putExtra("title", mSaltSideItemList.get(position).title);
-                startIntent.putExtra("image", mSaltSideItemList.get(position).image);
-                startIntent.putExtra("description", mSaltSideItemList.get(position).description);
-                mContext.startActivity(startIntent);
+            public void OnSaSideClickViewHolder(View view, int position) {
+                mFragment.onItemSelected(mSaltSideItemList.get(position));
             }
         });
     }
@@ -65,7 +61,7 @@ public class SaSideAdapter extends RecyclerView.Adapter<SaSideAdapter.SaSideView
 
         TextView mTitle;
         TextView mDescription;
-        OnSaSideClickListener clickListener;
+        OnSaSideClickViewHolderListener clickListener;
 
         public SaSideViewHolder(View itemView) {
             super(itemView);
@@ -76,15 +72,16 @@ public class SaSideAdapter extends RecyclerView.Adapter<SaSideAdapter.SaSideView
 
         @Override
         public void onClick(View v) {
-            clickListener.OnSaSideClick(v, getAdapterPosition());
+            clickListener.OnSaSideClickViewHolder(v, getAdapterPosition());
         }
 
-        public void setOnSaSideClickListener(OnSaSideClickListener itemClickListener) {
+        public void setOnSaSideClickListener(OnSaSideClickViewHolderListener itemClickListener) {
             this.clickListener = itemClickListener;
         }
 
-        public interface OnSaSideClickListener {
-            void OnSaSideClick(View view, int position);
+        public interface OnSaSideClickViewHolderListener {
+            void OnSaSideClickViewHolder(View view, int position);
         }
+
     }
 }
